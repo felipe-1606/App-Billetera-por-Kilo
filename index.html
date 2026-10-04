@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Billetera por kilo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+/* Layout: teléfono centrado con marco en escritorio; pantalla completa en móvil. Verde = libre, azul = seguro, naranja = ahorro. */
+:root{
+  --bg:#E4F0E8; --dev:#F5FAF6; --card:#FFFFFF; --ink:#17313B; --mut:#586E77; --line:#DDEAE2;
+  --g:#2E9E5B; --gd:#1B7541; --gl:#E3F6EA;
+  --b:#1F6FD1; --bl:#E2EEFC;
+  --o:#C9660A; --ol:#FDEBD6;
+  --on:#FFFFFF; --frame:#16222A; --shadow:rgba(23,49,59,.14); --warn:#B3261E; --warnl:#FCE8E6;
+  --font:'Nunito','Segoe UI',system-ui,Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1411; --dev:#101C18; --card:#17261F; --ink:#E8F2EC; --mut:#9DB3A9; --line:#243830;
+  --g:#46C07A; --gd:#46C07A; --gl:#17382A; --b:#5B9BEE; --bl:#16283F; --o:#F0A04B; --ol:#3A2A14;
+  --on:#08130E; --frame:#050A08; --shadow:rgba(0,0,0,.5); --warn:#F2928B; --warnl:#3D1F1D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1411; --dev:#101C18; --card:#17261F; --ink:#E8F2EC; --mut:#9DB3A9; --line:#243830;
+  --g:#46C07A; --gd:#46C07A; --gl:#17382A; --b:#5B9BEE; --bl:#16283F; --o:#F0A04B; --ol:#3A2A14;
+  --on:#08130E; --frame:#050A08; --shadow:rgba(0,0,0,.5); --warn:#F2928B; --warnl:#3D1F1D; color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+.stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding-inline:16px;padding-block:8px}
+.hint{font-size:13px;font-weight:800;color:var(--mut);text-align:center;max-width:420px;line-height:1.35}
+.device{position:relative;width:100%;max-width:410px;height:min(800px,calc(100% - 52px));background:var(--dev);border-radius:34px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 10px var(--frame),0 28px 50px var(--shadow)}
+@media (max-width:480px){.stage{padding:0;gap:0}.hint{display:none}.device{max-width:none;height:100%;border-radius:0;box-shadow:none}}
+header{display:flex;align-items:center;gap:10px;padding:16px 16px 8px}
+.logo{width:34px;height:34px;border-radius:11px;background:var(--g);display:grid;place-items:center;flex:none}
+header .t{flex:1;min-width:0}
+header .t b{display:block;font-size:16px;font-weight:900;line-height:1.1}
+header .t span{font-size:11.5px;font-weight:700;color:var(--mut)}
+.seg{display:flex;background:var(--line);border-radius:999px;padding:3px}
+.seg button{font-size:12px;font-weight:900;padding:5px 10px;border-radius:999px;color:var(--mut)}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px var(--shadow)}
+#screen{flex:1;overflow-y:auto;padding:6px 16px 18px;scrollbar-width:thin}
+nav{display:flex;border-top:1px solid var(--line);background:var(--card);padding-bottom:4px}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;font-size:11px;font-weight:800;color:var(--mut)}
+nav button[aria-current="page"]{color:var(--g)}
+.tag{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:var(--gd);background:var(--gl);padding:4px 10px;border-radius:999px}
+h1{font-size:24px;line-height:1.12;font-weight:900;margin:10px 0 4px;text-wrap:balance}
+.sub{font-size:13.5px;color:var(--mut);font-weight:700;line-height:1.35}
+.card{background:var(--card);border-radius:20px;padding:14px 15px;box-shadow:0 2px 0 var(--line),0 8px 18px var(--shadow)}
+.stack{display:flex;flex-direction:column;gap:11px;margin-top:13px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ico{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex:none}
+.bar{height:9px;border-radius:9px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:9px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.btn{display:block;width:100%;text-align:center;background:var(--g);color:var(--on);font-weight:900;font-size:16px;padding:14px;border-radius:16px;box-shadow:0 4px 0 var(--gd)}
+.btn.o{background:var(--o);box-shadow:0 4px 0 rgba(0,0,0,.28);color:#fff}
+.btn.ghost{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none}
+.pocket{display:flex;gap:12px;align-items:center}
+.pocket .n{flex:1;min-width:0}
+.pocket b.name{font-size:15px;font-weight:900;display:block}
+.pocket .d{font-size:12px;font-weight:700;color:var(--mut)}
+.amt{font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pop{animation:pop .6s ease}
+@keyframes pop{0%{transform:scale(1)}35%{transform:scale(1.035)}100%{transform:scale(1)}}
+.chip{padding:8px 14px;border-radius:999px;font-size:13px;font-weight:800;box-shadow:inset 0 0 0 2px var(--line);background:var(--card)}
+.chip[aria-pressed="true"]{background:var(--o);color:#fff;box-shadow:none}
+.note{display:flex;gap:10px;align-items:flex-start;border-radius:16px;padding:11px 13px;font-size:12.5px;font-weight:800;line-height:1.35}
+.note.b{background:var(--bl)}.note.o{background:var(--ol)}.note.g{background:var(--gl)}
+.ledger{display:flex;flex-direction:column}
+.ledger .row{padding:9px 0;border-bottom:2px dashed var(--line);font-size:13.5px;font-weight:800}
+.ledger .row:last-child{border:0}
+.ledger small{display:block;font-size:11.5px;color:var(--mut);font-weight:700}
+.weeks{display:flex;align-items:flex-end;gap:12px;height:96px}
+.weeks div{flex:1;text-align:center;font-size:11px;font-weight:800;display:flex;flex-direction:column;justify-content:flex-end;height:100%}
+.weeks i{display:block;background:var(--g);border-radius:9px 9px 4px 4px;margin-bottom:4px;transition:height .7s}
+.sheet{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;background:rgba(10,20,16,.5);opacity:0;pointer-events:none;transition:opacity .25s}
+.sheet.on{opacity:1;pointer-events:auto}
+.sheet .panel{background:var(--dev);border-radius:26px 26px 0 0;padding:18px 16px 20px;max-height:92%;overflow-y:auto;transform:translateY(30px);transition:transform .3s}
+.sheet.on .panel{transform:none}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:38px;height:38px;border-radius:12px;background:var(--line);font-size:20px;font-weight:900;line-height:1}
+.step output{min-width:34px;text-align:center;font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--o);height:30px}
+.toast{position:absolute;left:14px;right:14px;bottom:84px;background:var(--ink);color:var(--dev);padding:11px 14px;border-radius:14px;font-size:13px;font-weight:800;line-height:1.3;opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s}
+.toast.on{opacity:1;transform:none}
+.big{font-size:40px;font-weight:900;line-height:1.05;font-variant-numeric:tabular-nums}
+.hero{background:var(--g);color:var(--on);text-align:center;padding:16px}
+.check{width:64px;height:64px;border-radius:50%;background:var(--g);display:grid;place-items:center;margin:0 auto 6px;animation:pop .6s ease}
+.foot{margin-top:14px;font-size:11.5px;font-weight:700;color:var(--mut);text-align:center;line-height:1.4}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="stage">
+  <p class="hint">Pruébala: registra un pesaje, cambia a Budi, completa el seguro o pide un retiro de emergencia.</p>
+  <div class="device" id="dev">
+    <header>
+      <div class="logo" id="logo"></div>
+      <div class="t"><b>Billetera por kilo</b><span id="who-label">Cuenta de Siti Rahayu</span></div>
+      <div class="seg" role="group" aria-label="Moneda"><button id="c-usd" aria-pressed="true">US$</button><button id="c-idr" aria-pressed="false">Rp</button></div>
+    </header>
+    <div style="padding:0 16px 4px"><div class="seg" role="group" aria-label="Quién usa la app" style="width:100%"><button id="w-siti" aria-pressed="true" style="flex:1">Siti · recicladora</button><button id="w-budi" aria-pressed="false" style="flex:1">Budi · esposo</button></div></div>
+    <main id="screen"></main>
+    <nav id="tabs" aria-label="Secciones"></nav>
+    <div class="sheet" id="sheet" aria-hidden="true"><div class="panel" id="panel"></div></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* Valores en centavos de dólar. Todas las cifras son de ejemplo (supuestas). Tasa: 1 US$ = Rp 16.500. */
+  var RATE = 16500, PRICE = 24, BONO = 3, CUOTA = 102;
+  var S = { cur:'usd', who:'siti', tab:'home', libre:120, prot:37, aho:800, month:3564, weeks:[776,982,848,958], n:482, seq:11, last:null, hist:[{d:'28 sep',kg:11,c:297},{d:'24 sep',kg:9,c:243},{d:'20 sep',kg:14,c:378}], withdrawals:[] };
+
+  function ic(name,c,s){ s=s||20; var p={
+    wallet:'<path d="M3 7h15a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/><path d="M3 7l12-3v3"/><circle cx="17" cy="14" r="1.2" fill="'+c+'"/>',
+    shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5L16 9.5"/>',
+    pig:'<path d="M5 11c0-3 3-5 7-5s7 2 7 5c0 2-1 3-2 4v3h-3v-1.5h-4V18H7v-3c-1.2-1-2-2-2-4z"/><path d="M19 9l2-1.5M9.5 10.5h.01M12 3v2"/>',
+    home:'<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>',
+    fam:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6M14.5 20c0-2.5 1.5-4.5 3.5-4.5s3.5 2 3.5 4.5"/>',
+    lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    heart:'<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
+    scale:'<rect x="3" y="12" width="18" height="8" rx="2"/><path d="M7 12V9a5 5 0 0 1 10 0v3M12 9l2-2"/>'
+  }[name]; return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="'+c+'" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
+
+  function money(c){
+    if(S.cur==='usd') return 'US$ '+(c/100).toFixed(2).replace('.',',');
+    return 'Rp '+Math.round(c*RATE/100).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  }
+  function split(total){ var p=Math.round(total*0.2); return {libre: total-2*p, prot:p, aho:p}; }
+  function $(id){ return document.getElementById(id); }
+  function esc(t){ return String(t).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m];}); }
+
+  var toastT; function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('on');},3200); }
+  function guard(){ if(S.who==='budi'){ toast('Solo Siti puede hacer esto. Budi puede ver cuánto aporta el reciclaje.'); return false; } return true; }
+
+  function openSheet(html){ $('panel').innerHTML=html; var s=$('sheet'); s.classList.add('on'); s.setAttribute('aria-hidden','false'); }
+  function closeSheet(){ var s=$('sheet'); s.classList.remove('on'); s.setAttribute('aria-hidden','true'); }
+  $('sheet').addEventListener('click',function(e){ if(e.target===this) closeSheet(); });
+
+  /* ---------- pantallas ---------- */
+  function pocket(kind,name,desc,val,extra,cls){
+    var col={g:'var(--g)',b:'var(--b)',o:'var(--o)'}[kind], bg={g:'var(--gl)',b:'var(--bl)',o:'var(--ol)'}[kind], icon={g:'wallet',b:'shield',o:'pig'}[kind];
+    return '<div class="card '+(cls||'')+'" id="pk-'+kind+'"><div class="pocket"><div class="ico" style="background:'+bg+'">'+ic(icon,col,19)+'</div><div class="n"><b class="name">'+name+'</b><span class="d">'+desc+'</span></div><div class="amt">'+val+'</div></div>'+(extra||'')+'</div>';
+  }
+  function home(){
+    var pct=Math.min(100,Math.round(S.prot/CUOTA*100)), ok=S.prot>=CUOTA;
+    var pop=S.last? 'pop':'';
+    var h='<span class="tag">'+(S.who==='siti'?'Hola, Siti':'Vista de Budi · solo lectura')+'</span>';
+    h+='<h1>'+(S.who==='siti'?'Tu plata llega a tu nombre':'Lo que gana la familia')+'</h1><p class="sub">'+(S.who==='siti'?'Cada pesaje se reparte solo en tres bolsillos.':'Budi puede ver los saldos, pero no moverlos.')+'</p>';
+    h+='<div class="stack">';
+    h+=pocket('g','Libre','Para tu día a día',money(S.libre),'',pop);
+    h+=pocket('b','Protección','Tu seguro BPJS',money(S.prot),'<div class="bar" style="margin-top:10px"><i style="width:'+pct+'%;background:var(--b)"></i></div><div class="d" style="margin-top:6px;font-size:12px;font-weight:800">'+(ok?'Cuota del mes pagada':'Cuota del mes: '+money(CUOTA)+' · faltan '+money(CUOTA-S.prot))+'</div>',pop);
+    h+=pocket('o','Ahorro','Tu futuro y emergencias',money(S.aho),'',pop);
+    h+='</div>';
+    h+='<div class="stack"><button class="btn" id="b-weigh">'+ic('scale','var(--on)',18)+' Registrar un pesaje</button></div>';
+    h+='<div class="card" style="margin-top:13px"><div style="font-size:13px;font-weight:900;margin-bottom:2px">Últimos pesajes</div><div class="ledger">'+S.hist.map(function(x){return '<div class="row"><span>'+x.d+'<small>'+x.kg+' kg de PET</small></span><b>'+money(x.c)+'</b></div>';}).join('')+'</div></div>';
+    h+='<p class="foot">Prototipo digital del equipo. Cifras de ejemplo (supuestas), 1 US$ = Rp 16.500. Elaborado con apoyo de inteligencia artificial.</p>';
+    return h;
+  }
+  function family(){
+    var mx=Math.max.apply(null,S.weeks);
+    var h='<span class="tag">Modo familia · solo lectura</span><h1>Lo que gana nuestra familia</h1><p class="sub">El reciclaje de Siti suma al hogar. El dinero queda en su cuenta.</p>';
+    h+='<div class="card" style="margin-top:13px;text-align:center"><div style="display:flex;justify-content:center"><div class="ico" style="width:52px;height:52px;border-radius:50%;background:var(--gl);color:var(--gd);font-weight:900;font-size:19px">SR</div><div class="ico" style="width:52px;height:52px;border-radius:50%;background:var(--bl);color:var(--b);font-weight:900;font-size:19px;margin-left:-12px;box-shadow:0 0 0 3px var(--card)">BS</div></div><div class="sub" style="margin-top:8px;font-weight:800">ESTE MES EL RECICLAJE APORTÓ</div><div class="big">'+money(S.month)+'</div><div class="sub" style="font-weight:800;color:var(--gd)">'+S.seq+' pesajes de Siti</div></div>';
+    h+='<div class="card" style="margin-top:11px"><div style="font-size:13px;font-weight:900;margin-bottom:8px">Últimas 4 semanas</div><div class="weeks">'+S.weeks.map(function(w,i){return '<div><i style="height:'+Math.round(w/mx*70)+'px;opacity:'+(0.55+i*0.15)+'"></i>S'+(i+1)+'</div>';}).join('')+'</div></div>';
+    h+='<div class="note b" style="margin-top:11px">'+ic('lock','var(--b)',18)+'<span>El dinero queda en la cuenta de <b>Siti</b>. Budi puede ver, pero no retirar.</span></div>';
+    h+='<div class="note o" style="margin-top:10px">'+ic('heart','var(--o)',18)+'<span>Hogar <b>proveedor en equipo</b>: los dos suman para la familia.</span></div>';
+    h+='<div style="margin-top:12px"><button class="btn ghost" id="b-try">Intentar retirar dinero</button></div>';
+    return h;
+  }
+  function seguro(){
+    var ok=S.prot>=CUOTA, pct=Math.min(100,Math.round(S.prot/CUOTA*100)), falta=Math.max(0,CUOTA-S.prot);
+    var h='<span class="tag">Seguro BPJS Ketenagakerjaan</span>';
+    h+='<div class="card hero" style="margin-top:12px;background:linear-gradient(160deg,var(--b),#2c86ee);color:#fff"><div style="width:70px;height:70px;margin:0 auto 6px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center">'+ic('shield','#fff',40)+'</div><div style="font-size:25px;font-weight:900;line-height:1.1">'+(ok?'Cobertura activa':'Cuota por completar')+'</div><div style="font-size:13px;font-weight:700;opacity:.95;margin-top:4px">a nombre de Siti Rahayu · octubre</div></div>';
+    h+='<div class="card" style="margin-top:11px"><div class="row"><b>Cuota del mes</b><b style="color:var(--b)">'+money(CUOTA)+'</b></div><div class="bar" style="margin:10px 0 7px"><i style="width:'+pct+'%;background:var(--b)"></i></div><div class="row" style="font-size:12.5px;font-weight:800"><span>Llevas '+money(Math.min(S.prot,CUOTA))+'</span><span style="color:var(--mut)">'+(ok?'Completa':'Faltan '+money(falta))+'</span></div><p class="sub" style="margin-top:8px;font-size:12px">'+(ok?'La cuota salió sola del bolsillo Protección. No tuviste que sacar plata de tu día.':'Se completa sola con tus próximos pesajes. Si falta, puedes completarla con tu ahorro para que nunca se corte.')+'</p></div>';
+    if(!ok) h+='<div style="margin-top:11px"><button class="btn" id="b-fill">Completar con mi ahorro</button></div>';
+    h+='<div class="card" style="margin-top:11px"><div style="font-size:14px;font-weight:900;margin-bottom:9px">Qué te cubre</div><div class="row" style="justify-content:flex-start;margin-bottom:8px"><span class="ico" style="width:24px;height:24px;border-radius:50%;background:var(--b)">'+ic('check','#fff',13)+'</span><span style="font-size:13.5px;font-weight:800">Accidentes de trabajo</span></div><div class="row" style="justify-content:flex-start"><span class="ico" style="width:24px;height:24px;border-radius:50%;background:var(--b)">'+ic('check','#fff',13)+'</span><span style="font-size:13.5px;font-weight:800">Apoyo a tu familia si algo te pasa</span></div></div>';
+    h+='<div class="note b" style="margin-top:11px"><span>Antes pagabas el seguro con <b>tu propia plata del día</b>. Ahora sale del bolsillo <b>Protección</b>.</span></div>';
+    return h;
+  }
+  function ahorro(){
+    var h='<span class="tag">Tu ahorro</span><div class="card hero" style="margin-top:12px;background:linear-gradient(160deg,#C9660A,#E08A2E);color:#fff;text-align:left"><div class="row"><div><div style="font-size:12px;font-weight:800;opacity:.95">AHORRO ACUMULADO</div><div class="big" style="font-size:36px">'+money(S.aho)+'</div></div><div class="ico" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.22)">'+ic('pig','#fff',32)+'</div></div><div style="font-size:12.5px;font-weight:700;margin-top:3px">Incluye el aporte de las marcas</div></div>';
+    h+='<div class="note o" style="margin-top:12px"><span><b>Reglas claras:</b> hasta el 50 % de tu ahorro, llega a tu cuenta en 24 horas y solo tú puedes pedirlo.</span></div>';
+    h+='<div style="margin-top:12px"><button class="btn o" id="b-wd">Retirar por una emergencia</button></div>';
+    if(S.withdrawals.length){ h+='<div class="card" style="margin-top:12px"><div style="font-size:13px;font-weight:900;margin-bottom:2px">Retiros pedidos</div><div class="ledger">'+S.withdrawals.map(function(w){return '<div class="row"><span>'+esc(w.why)+'<small>Llega en 24 horas</small></span><b>'+money(w.c)+'</b></div>';}).join('')+'</div></div>'; }
+    return h;
+  }
+
+  function render(){
+    var scr=$('screen'); scr.innerHTML = ({home:home,fam:family,seg:seguro,aho:ahorro})[S.tab]();
+    var tabs=[['home','Inicio'],['fam','Familia'],['seg','Seguro'],['aho','Ahorro']];
+    $('tabs').innerHTML=tabs.map(function(t){var c=S.tab===t[0]?'var(--g)':'var(--mut)', i={home:'home',fam:'fam',seg:'shield',aho:'pig'}[t[0]]; return '<button data-t="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+ic(i,c,22)+t[1]+'</button>';}).join('');
+    $('c-usd').setAttribute('aria-pressed',S.cur==='usd'); $('c-idr').setAttribute('aria-pressed',S.cur==='idr');
+    $('w-siti').setAttribute('aria-pressed',S.who==='siti'); $('w-budi').setAttribute('aria-pressed',S.who==='budi');
+    $('who-label').textContent = S.who==='siti' ? 'Cuenta de Siti Rahayu' : 'Vista de la familia · solo lectura';
+    S.last=null;
+  }
+
+  /* ---------- pesaje ---------- */
+  var W={a:8,b:4};
+  function weighSheet(){
+    var kg=W.a+W.b, total=kg*(PRICE+BONO), sp=split(total);
+    openSheet('<div class="row"><b style="font-size:19px;font-weight:900">Registrar un pesaje</b><button class="chip" id="x-close" aria-label="Cerrar">Cerrar</button></div><p class="sub" style="margin:4px 0 12px">Punto de compra · Hendra Wijaya · Enka. El pesaje queda a nombre de Siti.</p>'+
+    '<div class="card"><div class="row"><div><b>PET transparente</b><div class="sub">'+money(PRICE)+' por kg</div></div><div class="step"><button data-k="a" data-d="-1" aria-label="Menos">−</button><output>'+W.a+' kg</output><button data-k="a" data-d="1" aria-label="Más">+</button></div></div><div class="row" style="margin-top:12px"><div><b>PET de color</b><div class="sub">'+money(PRICE)+' por kg</div></div><div class="step"><button data-k="b" data-d="-1" aria-label="Menos">−</button><output>'+W.b+' kg</output><button data-k="b" data-d="1" aria-label="Más">+</button></div></div></div>'+
+    '<div class="card" style="margin-top:11px"><div class="row"><span style="font-weight:800">Material ('+kg+' kg)</span><b>'+money(kg*PRICE)+'</b></div><div class="row" style="margin-top:6px"><span style="font-weight:800;color:var(--o)">Bono de las marcas</span><b style="color:var(--o)">+ '+money(kg*BONO)+'</b></div><div class="row" style="margin-top:10px;padding-top:10px;border-top:2px dashed var(--line)"><b>Total para Siti</b><b style="font-size:20px">'+money(total)+'</b></div><div class="bar" style="display:flex;margin-top:12px;height:12px"><i style="width:60%;background:var(--g);border-radius:0"></i><i style="width:20%;background:var(--b);border-radius:0"></i><i style="width:20%;background:var(--o);border-radius:0"></i></div><div class="row sub" style="margin-top:6px;font-size:12px;font-weight:800"><span style="color:var(--gd)">Libre '+money(sp.libre)+'</span><span style="color:var(--b)">Seguro '+money(sp.prot)+'</span><span style="color:var(--o)">Ahorro '+money(sp.aho)+'</span></div></div>'+
+    '<div style="margin-top:12px"><button class="btn" id="b-confirm"'+(kg===0?' disabled':'')+'>Registrar pesaje</button></div>');
+  }
+  function confirmWeigh(){
+    var kg=W.a+W.b; if(!kg) return; var total=kg*(PRICE+BONO), sp=split(total);
+    S.n+=1; S.seq+=1; S.libre+=sp.libre; S.prot+=sp.prot; S.aho+=sp.aho; S.month+=total; S.weeks[3]+=total; S.hist.unshift({d:'Hoy',kg:kg,c:total}); S.hist=S.hist.slice(0,4); S.last=true;
+    openSheet('<div style="text-align:center"><div class="check">'+ic('check','#fff',34)+'</div><b style="font-size:21px;font-weight:900">Pesaje #0'+S.n+' registrado</b><p class="sub" style="margin-top:4px">Queda anotado a nombre de Siti Rahayu.</p></div><div class="card hero" style="margin-top:14px;border-radius:20px"><div style="font-size:12.5px;font-weight:800;opacity:.9">TOTAL PARA SITI</div><div class="big" style="color:var(--on)">'+money(total)+'</div><div style="font-size:12.5px;font-weight:700;opacity:.9">va directo a su cuenta, no al hogar</div></div><div class="stack" style="margin-top:10px"><div class="row"><span style="font-weight:800">Libre</span><b>+ '+money(sp.libre)+'</b></div><div class="row"><span style="font-weight:800">Protección</span><b>+ '+money(sp.prot)+'</b></div><div class="row"><span style="font-weight:800">Ahorro</span><b>+ '+money(sp.aho)+'</b></div></div><div style="margin-top:14px"><button class="btn" id="b-done">Ver mi billetera</button></div>');
+    S.tab='home'; render();
+    if(S.prot>=CUOTA) setTimeout(function(){toast('Tu cuota del seguro de este mes quedó completa.');},700);
+  }
+
+  /* ---------- retiro de emergencia ---------- */
+  var WD={why:'Salud',c:300};
+  function wdSheet(){
+    var max=Math.floor(S.aho*0.5/5)*5; if(max<5){ toast('Todavía no hay ahorro suficiente para retirar. Registra más pesajes.'); return; }
+    WD.c=Math.min(Math.max(5,WD.c),max); if(WD.c>max) WD.c=max;
+    openSheet('<div class="row"><b style="font-size:19px;font-weight:900">Retiro de emergencia</b><button class="chip" id="x-close">Cerrar</button></div><p class="sub" style="margin:4px 0 10px">¿Para qué lo necesitas?</p><div style="display:flex;gap:8px;flex-wrap:wrap" id="why">'+['Salud','Accidente','Hijos / escuela'].map(function(w){return '<button class="chip" data-w="'+w+'" aria-pressed="'+(WD.why===w)+'">'+w+'</button>';}).join('')+'</div><div class="card" style="margin-top:14px"><div class="row"><span class="sub" style="font-weight:800">Quiero retirar</span><b class="amt" id="wd-v" style="font-size:24px">'+money(WD.c)+'</b></div><input type="range" id="wd-r" min="5" max="'+max+'" step="5" value="'+WD.c+'" aria-label="Monto a retirar" style="margin-top:8px"><div class="row sub" style="font-size:11.5px;font-weight:800"><span>'+money(5)+'</span><span>máximo '+money(max)+' (50 %)</span></div></div><div class="note o" style="margin-top:11px"><span>Llega a tu cuenta en 24 horas. Solo Siti puede pedirlo.</span></div><div style="margin-top:12px"><button class="btn o" id="b-wdok">Pedir mi retiro</button></div>');
+    $('wd-r').addEventListener('input',function(){ WD.c=+this.value; $('wd-v').textContent=money(WD.c); });
+  }
+
+  /* ---------- eventos ---------- */
+  document.addEventListener('click',function(e){
+    var el=e.target.closest('button'); if(!el) return; var id=el.id;
+    if(el.dataset.t){ S.tab=el.dataset.t; render(); $('screen').scrollTop=0; return; }
+    if(id==='c-usd'||id==='c-idr'){ S.cur=id==='c-usd'?'usd':'idr'; render(); return; }
+    if(id==='w-siti'||id==='w-budi'){ S.who=id==='w-siti'?'siti':'budi'; S.tab=S.who==='budi'?'fam':'home'; render(); return; }
+    if(id==='b-weigh'){ if(guard()){ W={a:8,b:4}; weighSheet(); } return; }
+    if(el.dataset.k){ var k=el.dataset.k; W[k]=Math.max(0,Math.min(40,W[k]+(+el.dataset.d))); weighSheet(); return; }
+    if(id==='b-confirm'){ confirmWeigh(); return; }
+    if(id==='b-done'||id==='x-close'){ closeSheet(); return; }
+    if(id==='b-try'){ if(guard()){ S.tab='aho'; render(); } return; }
+    if(id==='b-fill'){ if(!guard()) return; var need=CUOTA-S.prot; if(S.aho<need){ toast('El ahorro no alcanza para completar la cuota.'); return; } S.aho-=need; S.prot+=need; render(); toast('Cuota completada con tu ahorro. Tu seguro sigue activo.'); return; }
+    if(id==='b-wd'){ if(guard()) wdSheet(); return; }
+    if(el.dataset.w){ WD.why=el.dataset.w; document.querySelectorAll('#why .chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.w===WD.why);}); return; }
+    if(id==='b-wdok'){ S.aho-=WD.c; S.withdrawals.unshift({why:WD.why,c:WD.c}); closeSheet(); render(); toast('Retiro pedido: '+money(WD.c)+'. Llega a tu cuenta en 24 horas.'); WD.c=300; return; }
+  });
+  $('logo').innerHTML=ic('wallet','#fff',20);
+  render();
+})();
+</script>
+
+</body></html>
